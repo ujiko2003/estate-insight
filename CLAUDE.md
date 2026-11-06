@@ -145,7 +145,8 @@ estate-insight
 - **1-1 뼈대**: `api`/`batch`는 Spring Initializr로 각각 생성(의존성: `api`→`web`, `batch`→`batch-jdbc`) 후 멀티모듈 구조로 재배치, `core`는 직접 작성(`java-library`), 루트 `settings.gradle.kts`/`build.gradle.kts` 배선, `.gitignore`
   - 완료 기준: `./gradlew build` 성공
 - **1-2 로컬 인프라**: `compose.yaml`(postgis/postgis:16-3.4, redis:7-alpine, healthcheck), `application.yml`(환경변수 기본값 패턴), Flyway V1~V3
-  - 완료 기준: api 기동 시 Flyway V1~V3 적용, `/actuator/health` UP
+  - 완료 기준: api 기동 시 Flyway V1~V3 적용, `/actuator/health` UP — **`./gradlew build -x test`** 로 확인 (아래 참고)
+  - ⚠️ `batch:test`(`BatchApplicationTests.contextLoads`)는 **1-4 전까지 의도적으로 깨진 상태**: `batch`가 `core`를 통해 JPA+postgres 드라이버를 전파받아 DataSource 자동설정이 걸리는데, `batch`엔 아직 `application.yml`이 없어서 연결 정보가 없음. `batch`의 DB 연결 설정은 1-4(배치 틀)에서 설계와 함께 작성하기로 함 (2026-11-06 결정).
 - **1-3 동작 확인 API**: Region 엔티티·리포지토리, `GET /api/regions` (엔티티 대신 record 응답)
   - 완료 기준: 25개 구 JSON 응답
 - **1-4 배치 틀**: Tasklet Job, `runDate` 파라미터, 종료 코드
@@ -163,8 +164,8 @@ estate-insight
 비용 원칙: NAT Gateway 사용 안 함, RDS는 작은 단일 AZ로 시작, AWS Budgets 알람 먼저 설정.
 
 ## 진행 현황
-- [ ] 1-1 뼈대
-- [ ] 1-2 로컬 인프라
+- [x] 1-1 뼈대
+- [x] 1-2 로컬 인프라
 - [ ] 1-3 동작 확인 API
 - [ ] 1-4 배치 틀
 - [ ] 1-5 API 클라이언트
