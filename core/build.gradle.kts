@@ -27,4 +27,14 @@ dependencies {
 
     // JDBC 드라이버는 코드에 타입으로 등장하지 않는 순수 런타임 구현체 -> runtimeOnly
     runtimeOnly("org.postgresql:postgresql")
+
+    // Lombok: 컴파일 시점에만 getter/setter를 생성해주는 애노테이션 프로세서.
+    // 생성된 getter는 core의 public 시그니처가 되지만, Lombok 자체 타입(@Getter 등)이
+    // 컴파일된 클래스 파일에는 남지 않으므로 compileOnly로 충분 -> api/batch에 전파 안 됨.
+    compileOnly("org.projectlombok:lombok")
+
+    // annotationProcessor는 compileClasspath와 별개의 독립된 configuration이라
+    // api(platform(...))의 BOM 제약이 전파되지 않음 -> 여기도 따로 platform을 꽂아줘야 함
+    annotationProcessor(platform(SpringBootPlugin.BOM_COORDINATES))
+    annotationProcessor("org.projectlombok:lombok")
 }

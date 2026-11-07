@@ -30,6 +30,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-flyway")
 	implementation("org.flywaydb:flyway-database-postgresql")
 
+	// Lombok은 컴파일 시점에만 필요 (코드 생성용) -> compileOnly
+	// annotationProcessor는 implementation/api와 별개 경로라 BOM을 따로 꽂아줘야 함
+	compileOnly("org.projectlombok:lombok")
+	annotationProcessor(platform(SpringBootPlugin.BOM_COORDINATES))
+	annotationProcessor("org.projectlombok:lombok")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
