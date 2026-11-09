@@ -13,9 +13,8 @@
   `System.exit(SpringApplication.exit(SpringApplication.run(...)))` 형태로 변경.
   DoD: Job을 의도적으로 실패시켰을 때 프로세스 종료 코드가 0이 아님을 `echo $?`로 확인,
   성공 시 0인 것도 함께 확인.
-- [ ] **Job/Step/Tasklet 뼈대 작성**: `runDate` 파라미터를 받는 `@Configuration` 클래스,
-  Tasklet은 로그 한 줄만 찍는 수준으로 단순하게.
-  DoD: `./gradlew :batch:bootRun --args='runDate=2026-11-06'` 성공.
+  진행 메모(2026-11-09): `System.exit` 적용 커밋(`9bd1771`), 의도적 실패 Job의 `FAILED` 기록은
+  DB에서 확인. `echo $?` 결과는 미확인.
 - [ ] **재실행 방지 확인**: 같은 `runDate`로 두 번째 실행.
   DoD: 두 번째 실행이 `BATCH_JOB_INSTANCE`의 `(JOB_NAME, JOB_KEY)` UNIQUE 제약으로 막히는
   것을 실제 로그/에러로 확인.
@@ -100,3 +99,7 @@
 ### 1-4 (부분). batch 모듈 DB 연결
 - `batch/application.yml` 작성 완료 (Flyway 관련 설정 없이 DB 연결 정보만).
 - DoD 확인: `batch:test` 통과, `./gradlew build`(테스트 포함) 전체 통과.
+
+### 1-4 (부분). Job/Step/Tasklet 뼈대
+- `JobConfig`에 `logTestJob`/`logTestStep` 작성, `runDate` 파라미터 사용 (커밋 `9bd1771`).
+- DoD 확인: `BATCH_JOB_EXECUTION`에 `logTestJob`, `runDate=2026-11-06`, `COMPLETED` 기록 확인.
