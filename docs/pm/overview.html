@@ -1,0 +1,483 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estate Insight</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #eef1f4;
+    --paper-raised: #e3e8ec;
+    --ink: #1a2230;
+    --ink-soft: #4a5568;
+    --line: #c7d0d6;
+    --accent-blue: #2457a6;
+    --accent-blue-soft: #e4ecf6;
+    --accent-brass: #a66f24;
+    --accent-brass-soft: #f3e8d6;
+    --status-done: #2f7d5f;
+    --status-done-bg: #e1efe6;
+    --status-progress: #a66f24;
+    --status-progress-bg: #f3e8d6;
+    --status-planned: #6b7684;
+    --status-planned-bg: #e3e7ea;
+    --code-bg: #e4e8ec;
+    --shadow: 0 1px 2px rgba(26,34,48,0.06);
+    --font-display: 'Gowun Batang', Georgia, 'Noto Serif KR', serif;
+    --font-body: 'IBM Plex Sans KR', -apple-system, 'Apple SD Gothic Neo', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'Noto Sans Mono CJK KR', ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #10151c;
+      --paper-raised: #171e27;
+      --ink: #e4e9ee;
+      --ink-soft: #9aa7b4;
+      --line: #2c3744;
+      --accent-blue: #74a6e8;
+      --accent-blue-soft: #1c2b40;
+      --accent-brass: #dba758;
+      --accent-brass-soft: #2e2415;
+      --status-done: #6fc29f;
+      --status-done-bg: #15291f;
+      --status-progress: #dba758;
+      --status-progress-bg: #2e2415;
+      --status-planned: #8992a0;
+      --status-planned-bg: #1d242d;
+      --code-bg: #171e27;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #10151c;
+    --paper-raised: #171e27;
+    --ink: #e4e9ee;
+    --ink-soft: #9aa7b4;
+    --line: #2c3744;
+    --accent-blue: #74a6e8;
+    --accent-blue-soft: #1c2b40;
+    --accent-brass: #dba758;
+    --accent-brass-soft: #2e2415;
+    --status-done: #6fc29f;
+    --status-done-bg: #15291f;
+    --status-progress: #dba758;
+    --status-progress-bg: #2e2415;
+    --status-planned: #8992a0;
+    --status-planned-bg: #1d242d;
+    --code-bg: #171e27;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    padding-inline: 20px;
+    margin: 0;
+  }
+  img { max-width: 100%; }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  .wide { max-width: 980px; margin: 0 auto; }
+
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; font-weight: 700; color: var(--ink); }
+  h1 { font-size: clamp(28px, 4vw, 40px); margin: 0 0 6px; }
+  h2 { font-size: clamp(22px, 3vw, 28px); margin: 0 0 4px; }
+  h3 { font-size: 18px; margin: 0 0 8px; }
+  p { max-width: 68ch; }
+  code, .mono { font-family: var(--font-mono); font-size: 0.92em; }
+
+  .banner { padding-block: 40px 28px; border-bottom: 1px solid var(--line); }
+  .doc-type {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-blue); display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  }
+  .doc-type::before { content: ''; width: 18px; height: 1px; background: var(--accent-blue); display: inline-block; }
+  .mission { color: var(--ink-soft); font-size: 17px; margin-top: 10px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 22px; font-size: 13.5px; color: var(--ink-soft); }
+  .meta-row b { color: var(--ink); font-weight: 600; }
+
+  nav.toc {
+    position: sticky; top: 0; z-index: 5; background: var(--paper);
+    border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none;
+  }
+  nav.toc::-webkit-scrollbar { display: none; }
+  nav.toc .row { display: flex; gap: 4px; padding-block: 10px; width: max-content; margin: 0 auto; max-width: 880px; }
+  nav.toc a {
+    font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-soft); text-decoration: none;
+    padding: 6px 12px; border-radius: 100px; white-space: nowrap;
+  }
+  nav.toc a:hover { background: var(--paper-raised); color: var(--ink); }
+
+  section { padding-block: 46px; border-bottom: 1px solid var(--line); }
+  section:last-of-type { border-bottom: none; }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; color: var(--accent-blue);
+    text-transform: uppercase; margin-bottom: 10px; display: block;
+  }
+  .lede { color: var(--ink-soft); margin-top: 6px; margin-bottom: 28px; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11.5px;
+    font-weight: 500; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.01em;
+  }
+  .pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+  .pill.done { background: var(--status-done-bg); color: var(--status-done); }
+  .pill.done::before { background: var(--status-done); }
+  .pill.progress { background: var(--status-progress-bg); color: var(--status-progress); }
+  .pill.progress::before { background: var(--status-progress); }
+  .pill.planned { background: var(--status-planned-bg); color: var(--status-planned); }
+  .pill.planned::before { background: var(--status-planned); }
+
+  .feature { display: grid; grid-template-columns: 28px 1fr; gap: 4px 16px; padding-block: 20px; border-top: 1px solid var(--line); }
+  .feature:first-of-type { border-top: none; padding-top: 0; }
+  .feature .num { font-family: var(--font-mono); color: var(--accent-blue); font-size: 13px; padding-top: 3px; }
+  .feature h3 { grid-column: 2; }
+  .feature p.desc { grid-column: 2; margin: 2px 0 10px; color: var(--ink-soft); font-size: 15px; }
+  .feature .call { grid-column: 2; background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; overflow-x: auto; }
+  .call code { color: var(--ink); white-space: pre; display: block; }
+  .call .verb { color: var(--accent-blue); font-weight: 600; }
+
+  figure { margin: 0; }
+  figure svg { max-width: 100%; height: auto; display: block; }
+  figcaption { font-size: 13px; color: var(--ink-soft); margin-top: 12px; border-left: 2px solid var(--line); padding-left: 10px; }
+  .diagram-frame { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; padding: 18px; overflow-x: auto; }
+  svg text { font-family: var(--font-mono); fill: var(--ink); }
+  svg .sub { fill: var(--ink-soft); }
+  svg .lbl { fill: var(--ink-soft); font-size: 10.5px; }
+  svg rect.node { fill: var(--paper); stroke: var(--ink-soft); stroke-width: 1.3; }
+  svg rect.node.accent-rds { stroke: var(--accent-brass); stroke-width: 2; fill: var(--accent-brass-soft); }
+  svg rect.node.accent-core { stroke: var(--accent-blue); stroke-width: 2; fill: var(--accent-blue-soft); }
+  svg line.arrow, svg path.arrow { stroke: var(--ink-soft); stroke-width: 1.3; fill: none; }
+  svg path.blocked { stroke: var(--ink-soft); stroke-width: 1.3; fill: none; stroke-dasharray: 4 4; }
+
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 560px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--ink-soft); font-weight: 500; border-bottom: 1px solid var(--ink-soft);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.k { font-family: var(--font-mono); font-size: 13.5px; color: var(--accent-blue); white-space: nowrap; }
+
+  .decisions { display: grid; gap: 10px; margin-top: 18px; padding: 0; }
+  .decisions li {
+    list-style: none; padding: 12px 16px; background: var(--paper-raised);
+    border-left: 3px solid var(--accent-brass); border-radius: 0 6px 6px 0; font-size: 14.5px;
+  }
+  .decisions b { color: var(--ink); }
+
+  .stage { display: grid; grid-template-columns: 64px 1fr; gap: 2px 18px; padding-block: 22px; border-top: 1px solid var(--line); position: relative; }
+  .stage:first-of-type { border-top: none; }
+  .stage .stage-no { font-family: var(--font-mono); font-size: 13px; color: var(--ink-soft); padding-top: 2px; }
+  .stage h3 { grid-column: 2; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .stage .stage-body { grid-column: 2; color: var(--ink-soft); font-size: 14.5px; margin-top: 4px; }
+  .checklist { grid-column: 2; display: grid; gap: 6px; margin-top: 12px; font-size: 14px; }
+  .checklist .row { display: flex; align-items: baseline; gap: 10px; }
+  .checklist .row .mono { color: var(--ink-soft); min-width: 92px; }
+
+  .snapshot { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; padding: 22px 24px; margin-top: 22px; }
+  .snapshot .row { display: flex; gap: 10px; align-items: baseline; padding-block: 6px; font-size: 14.5px; }
+  .snapshot .row span.k { color: var(--ink-soft); min-width: 150px; font-family: var(--font-mono); font-size: 13px; }
+
+  footer { padding-block: 36px 60px; color: var(--ink-soft); font-size: 13px; }
+
+  @media (max-width: 560px) {
+    .feature { grid-template-columns: 1fr; }
+    .feature .num { display: none; }
+    .feature h3, .feature p.desc, .feature .call { grid-column: 1; }
+    .stage { grid-template-columns: 1fr; }
+    .stage .stage-no { display: none; }
+    .stage h3, .stage .stage-body, .checklist { grid-column: 1; }
+  }
+</style>
+
+<nav class="toc">
+  <div class="row">
+    <a href="#overview">개요</a>
+    <a href="#usage">서비스 이용 방법</a>
+    <a href="#architecture">아키텍처</a>
+    <a href="#modules">모듈 구조</a>
+    <a href="#database">DB 설계</a>
+    <a href="#stack">기술 스택</a>
+    <a href="#roadmap">진행 단계</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="banner" id="overview">
+    <span class="doc-type">설계 문서 · 외부 공개</span>
+    <h1>Estate Insight</h1>
+    <p class="mission">국토교통부 아파트 매매 실거래가 공공데이터를 주기적으로 수집해 지도 기반으로 검색·통계를 제공하는 서비스. 백엔드 이직 포트폴리오를 목적으로, 기능의 개수보다 <b>"문제 → 선택 → 결과"</b>를 코드와 기록으로 남기는 것이 이 프로젝트의 진짜 산출물이다.</p>
+    <div class="meta-row">
+      <div><b>현재 단계</b> · 1단계 로컬 MVP (1-4 진행 중)</div>
+      <div><b>리포지토리</b> · github.com/ujiko2003/estate-insight</div>
+      <div><b>스택</b> · Java 21 · Spring Boot 4.1.1 · PostGIS · Spring Batch 6</div>
+    </div>
+  </header>
+
+  <section id="usage">
+    <span class="eyebrow">서비스 이용 방법</span>
+    <h2>개발자가 이 서비스를 어떻게 호출하게 되는가</h2>
+    <p class="lede">MVP의 핵심 조회 기능은 네 가지(02~05) — 전부 읽기 전용 REST API이고, 응답은 항상 엔티티가 아닌 record(DTO)다. 01 지역 조회는 그 네 기능이 다루는 수집 대상 목록으로, 먼저 동작을 확인한 보조 기능이다. 아래는 1-8 단계에서 구현될 API 계약 초안 — <span class="pill planned">예정</span> 표시가 없는 것만 지금 실제로 동작한다.</p>
+
+    <div class="feature">
+      <div class="num">01</div>
+      <h3>지역 조회 <span class="pill done">완료</span></h3>
+      <p class="desc">수집 대상 시군구 목록. 실거래 데이터 자체를 조회하는 기능은 아래 02~05 — 1-8에서 붙는다.</p>
+      <div class="call"><code><span class="verb">GET</span> /api/regions
+→ [{"sggCode":"11680","sidoName":"서울특별시","sggName":"강남구","isActive":true}, ...]</code></div>
+    </div>
+
+    <div class="feature">
+      <div class="num">02</div>
+      <h3>실거래 조건 검색 <span class="pill planned">예정 · 1-8</span></h3>
+      <p class="desc">시군구 코드(LAWD_CD 체계) · 계약 기간 · 가격대로 거래 내역을 좁힌다.</p>
+      <div class="call"><code><span class="verb">GET</span> /api/trades?sgg=11680&amp;from=2026-01&amp;to=2026-06&amp;minPrice=80000&amp;maxPrice=150000</code></div>
+    </div>
+
+    <div class="feature">
+      <div class="num">03</div>
+      <h3>지도 검색 <span class="pill planned">예정 · 1-8</span></h3>
+      <p class="desc">지도 화면 영역(bbox)이나 중심점 반경 N km 안의 거래를 PostGIS로 조회한다 (<code>ST_MakeEnvelope</code> / <code>ST_DWithin</code>).</p>
+      <div class="call"><code><span class="verb">GET</span> /api/trades/map?bbox=127.02,37.49,127.06,37.52
+<span class="verb">GET</span> /api/trades/map?lat=37.50&amp;lng=127.04&amp;radiusKm=1.5</code></div>
+    </div>
+
+    <div class="feature">
+      <div class="num">04</div>
+      <h3>단지별 가격 추이 <span class="pill planned">예정 · 1-8</span></h3>
+      <p class="desc">하나의 아파트 단지(aptSeq)가 월별로 평균 얼마에 거래됐는지 추이를 보여준다.</p>
+      <div class="call"><code><span class="verb">GET</span> /api/complexes/11680-2246/price-trend
+→ [{"month":"2026-04","avgPrice":182000}, {"month":"2026-05","avgPrice":186500}, ...]</code></div>
+    </div>
+
+    <div class="feature">
+      <div class="num">05</div>
+      <h3>시군구 통계 <span class="pill planned">예정 · 1-8</span></h3>
+      <p class="desc">시군구 단위 평균 평당가와 거래량 — 해제된 거래(<code>is_cancelled</code>)는 제외.</p>
+      <div class="call"><code><span class="verb">GET</span> /api/stats/region/11680
+→ {"sggCode":"11680","avgPricePerPyeong":8820,"tradeCount":412}</code></div>
+    </div>
+  </section>
+
+  <section id="architecture">
+    <span class="eyebrow">목표 아키텍처</span>
+    <h2>2단계 배포가 끝났을 때의 모습</h2>
+    <p class="lede">지금은 Docker Compose로 Postgres·Redis만 로컬에 띄워놓고 api·batch를 호스트에서 직접 실행하는 상태다. 아래는 <b>2단계(AWS 배포)</b>까지 끝났을 때의 최종 형태 — 조회 경로(위)와 수집 경로(아래)가 같은 RDS를 공유하는 구조다.</p>
+
+    <div class="diagram-frame wide">
+      <figure>
+        <svg viewBox="0 0 1000 580" role="img" aria-label="클라이언트가 CloudFront를 거쳐 ECS Fargate api 서비스로 요청하고, api가 ElastiCache와 RDS(PostgreSQL+PostGIS)를 조회한다. 동시에 EventBridge Scheduler가 매일 ECS Task인 batch를 실행시키고, batch는 국토교통부 실거래가 API와 지오코딩 API를 호출해 원본을 S3에 저장하고 가공된 데이터를 같은 RDS에 upsert한다.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+            </marker>
+          </defs>
+
+          <rect class="node" x="20" y="30" width="140" height="56" rx="6"/>
+          <text x="90" y="54" text-anchor="middle" font-size="13" font-weight="600">클라이언트</text>
+          <text class="sub" x="90" y="70" text-anchor="middle" font-size="10.5">웹 / 모바일</text>
+
+          <rect class="node" x="230" y="30" width="140" height="56" rx="6"/>
+          <text x="300" y="54" text-anchor="middle" font-size="13" font-weight="600">CloudFront</text>
+          <text class="sub" x="300" y="70" text-anchor="middle" font-size="10.5">CDN</text>
+
+          <rect class="node" x="440" y="30" width="160" height="56" rx="6"/>
+          <text x="520" y="54" text-anchor="middle" font-size="13" font-weight="600">api</text>
+          <text class="sub" x="520" y="70" text-anchor="middle" font-size="10.5">ECS Fargate · 상시 구동</text>
+
+          <rect class="node" x="670" y="30" width="160" height="56" rx="6"/>
+          <text x="750" y="54" text-anchor="middle" font-size="13" font-weight="600">ElastiCache</text>
+          <text class="sub" x="750" y="70" text-anchor="middle" font-size="10.5">Redis</text>
+
+          <rect class="node accent-rds" x="400" y="260" width="260" height="72" rx="6"/>
+          <text x="530" y="291" text-anchor="middle" font-size="13.5" font-weight="700">RDS</text>
+          <text class="sub" x="530" y="308" text-anchor="middle" font-size="10.5">PostgreSQL + PostGIS</text>
+
+          <rect class="node" x="20" y="480" width="150" height="56" rx="6"/>
+          <text x="95" y="504" text-anchor="middle" font-size="13" font-weight="600">EventBridge</text>
+          <text class="sub" x="95" y="520" text-anchor="middle" font-size="10.5">Scheduler</text>
+
+          <rect class="node" x="230" y="480" width="160" height="56" rx="6"/>
+          <text x="310" y="504" text-anchor="middle" font-size="13" font-weight="600">batch</text>
+          <text class="sub" x="310" y="520" text-anchor="middle" font-size="10.5">ECS Task · 실행 후 종료</text>
+
+          <rect class="node" x="460" y="410" width="190" height="50" rx="6"/>
+          <text x="555" y="432" text-anchor="middle" font-size="12.5" font-weight="600">국토교통부 API</text>
+          <text class="sub" x="555" y="448" text-anchor="middle" font-size="10">실거래가 상세자료</text>
+
+          <rect class="node" x="460" y="526" width="190" height="48" rx="6"/>
+          <text x="555" y="547" text-anchor="middle" font-size="12.5" font-weight="600">지오코딩 API</text>
+          <text class="sub" x="555" y="563" text-anchor="middle" font-size="10">VWorld / Kakao</text>
+
+          <rect class="node" x="720" y="480" width="140" height="56" rx="6"/>
+          <text x="790" y="504" text-anchor="middle" font-size="13" font-weight="600">S3</text>
+          <text class="sub" x="790" y="520" text-anchor="middle" font-size="10.5">원본 응답 보관</text>
+
+          <line class="arrow" x1="160" y1="58" x2="226" y2="58" marker-end="url(#arrow)"/>
+          <text class="lbl" x="193" y="48" text-anchor="middle">HTTPS 요청</text>
+
+          <line class="arrow" x1="370" y1="58" x2="436" y2="58" marker-end="url(#arrow)"/>
+          <text class="lbl" x="403" y="48" text-anchor="middle">전달</text>
+
+          <line class="arrow" x1="600" y1="58" x2="666" y2="58" marker-end="url(#arrow)"/>
+          <text class="lbl" x="633" y="22" text-anchor="middle">캐시 조회 · 저장</text>
+
+          <line class="arrow" x1="520" y1="86" x2="520" y2="256" marker-end="url(#arrow)"/>
+          <text class="lbl" x="533" y="175" text-anchor="start">조회 쿼리 (JPA / 네이티브)</text>
+
+          <line class="arrow" x1="170" y1="508" x2="226" y2="508" marker-end="url(#arrow)"/>
+          <text class="lbl" x="198" y="498" text-anchor="middle">매일 트리거</text>
+
+          <path class="arrow" d="M 390 490 L 456 436" marker-end="url(#arrow)" />
+          <text class="lbl" x="368" y="442" text-anchor="start">LAWD_CD +</text>
+          <text class="lbl" x="368" y="454" text-anchor="start">DEAL_YMD</text>
+
+          <path class="arrow" d="M 390 530 L 456 548" marker-end="url(#arrow)" />
+          <text class="lbl" x="362" y="566" text-anchor="start">주소 → 좌표 변환</text>
+
+          <line class="arrow" x1="390" y1="508" x2="716" y2="508" marker-end="url(#arrow)"/>
+          <text class="lbl" x="553" y="498" text-anchor="middle">원본 그대로 저장</text>
+
+          <path class="arrow" d="M 320 476 L 460 332" marker-end="url(#arrow)" />
+          <text class="lbl" x="384" y="400" text-anchor="end">가공 후 upsert 적재</text>
+        </svg>
+      </figure>
+      <figcaption>조회 경로(위)와 수집 경로(아래)는 서로 모르는 채 동작하지만, 결국 같은 RDS 한 곳에서 만난다 — batch가 적재한 데이터를 api가 그대로 읽는다. 이 다이어그램이 최종 형태이고, CI/CD 경로(GitHub Actions → ECR)는 운영 경로가 아니라 아래 로드맵에 별도로 적어뒀다.</figcaption>
+    </div>
+  </section>
+
+  <section id="modules">
+    <span class="eyebrow">모듈 구조</span>
+    <h2>왜 Gradle 멀티모듈로 쪼갰는가</h2>
+    <p class="lede"><code>api</code>와 <code>batch</code>는 배포 단위가 다르다 — api는 상주 서버(ECS Service), batch는 실행 후 종료(ECS Task). 그래서 "배포 단위가 다르면 모듈도 분리한다"는 기준으로 쪼갰고, <code>core</code>는 둘 다 쓰는 도메인(엔티티·리포지토리)과 Flyway 마이그레이션을 들고 있다.</p>
+
+    <div class="diagram-frame">
+      <figure>
+        <svg viewBox="0 0 520 240" role="img" aria-label="api와 batch는 core에 의존하지만, core는 api와 batch를 전혀 모른다. core가 api에 의존하려는 시도는 점선으로 표시되어 있고 컴파일 단계에서 막힌다.">
+          <defs>
+            <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+            </marker>
+          </defs>
+          <rect class="node" x="20" y="20" width="150" height="54" rx="6"/>
+          <text x="95" y="52" text-anchor="middle" font-size="13" font-weight="600">api</text>
+
+          <rect class="node" x="350" y="20" width="150" height="54" rx="6"/>
+          <text x="425" y="52" text-anchor="middle" font-size="13" font-weight="600">batch</text>
+
+          <rect class="node accent-core" x="185" y="150" width="150" height="54" rx="6"/>
+          <text x="260" y="182" text-anchor="middle" font-size="13" font-weight="700">core</text>
+
+          <line class="arrow" x1="110" y1="74" x2="225" y2="150" marker-end="url(#arrow2)"/>
+          <text class="lbl" x="160" y="122" text-anchor="end">의존</text>
+
+          <line class="arrow" x1="410" y1="74" x2="295" y2="150" marker-end="url(#arrow2)"/>
+          <text class="lbl" x="362" y="118" text-anchor="start">의존</text>
+
+          <path class="blocked" d="M 250 148 C 220 110, 200 90, 150 76" marker-end="url(#arrow2)"/>
+          <text class="lbl" x="216" y="100" text-anchor="start">컴파일 불가</text>
+        </svg>
+      </figure>
+      <figcaption>core → api 방향 의존은 Gradle이 컴파일 단계에서 강제로 막는다. 실제로 리포지토리(core)가 응답 DTO(api)를 직접 리턴하도록 시도했다가 <code>cannot find symbol</code>로 막힌 적이 있다 — 설계 문서가 아니라 빌드가 규칙을 지킨 사례.</figcaption>
+    </div>
+  </section>
+
+  <section id="database">
+    <span class="eyebrow">DB 설계</span>
+    <h2>5개 테이블, Flyway로 버전 관리</h2>
+    <p class="lede">PostgreSQL 16 + PostGIS. 스키마는 전부 Flyway 마이그레이션(V1~V4, <code>core</code> 모듈 소유)으로만 바뀐다 — Hibernate의 <code>ddl-auto</code>는 <code>validate</code>로 고정해서 자동 생성을 막아둔다.</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>테이블</th><th>핵심</th></tr></thead>
+        <tbody>
+          <tr><td class="k">region</td><td>PK <code>sgg_code</code> — 국토부 API의 <code>LAWD_CD</code> 그 자체. <code>is_active</code>로 수집 대상 지정 (MVP는 강남구 11680만 true)</td></tr>
+          <tr><td class="k">apt_complex</td><td>PK는 API의 <code>aptSeq</code>. 좌표는 <code>GEOGRAPHY(POINT,4326)</code> + GIST 인덱스</td></tr>
+          <tr><td class="k">apt_trade</td><td>API에 고유 ID가 없어 <code>trade_key</code>(자연키 SHA-256, UNIQUE)로 upsert. 금액은 만원 단위 INTEGER</td></tr>
+          <tr><td class="k">geocode_cache</td><td>정규화 주소가 PK. 실패(NOT_FOUND)도 저장해 API 호출 한도를 아낌</td></tr>
+          <tr><td class="k">ingest_status</td><td>PK <code>(sgg_code, deal_ym)</code> — 지역×월 단위 수집 상태, 중단 후 이어받기용</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="decisions">
+      <li><b>trade_key에 해제 여부는 넣지 않는다.</b> 같은 거래가 나중에 '해제' 표시로 다시 들어오는데, 해제 여부를 키에 포함하면 중복으로 쌓인다 — 빼야 upsert로 상태만 바뀐다.</li>
+      <li><b>GEOGRAPHY를 고른 이유.</b> 미터 단위 반경 검색(<code>ST_DWithin</code>)이 인덱스를 타며 바로 된다. GEOMETRY와의 실행계획 비교는 3단계(성능 튜닝)에서.</li>
+      <li><b>통계용 인덱스는 부분 인덱스.</b> <code>WHERE is_cancelled = FALSE</code> — 통계 조회가 거의 전부 해제 거래를 빼고 보기 때문.</li>
+    </ul>
+  </section>
+
+  <section id="stack">
+    <span class="eyebrow">기술 스택</span>
+    <h2>확정된 선택</h2>
+    <div class="table-scroll">
+      <table>
+        <tbody>
+          <tr><td class="k">언어 / 빌드</td><td>Java 21 · Gradle (Kotlin DSL, 멀티모듈)</td></tr>
+          <tr><td class="k">프레임워크</td><td>Spring Boot 4.1.1 · Spring Batch 6</td></tr>
+          <tr><td class="k">HTTP 클라이언트</td><td>Spring RestClient + 가상 스레드</td></tr>
+          <tr><td class="k">DB / ORM</td><td>PostgreSQL 16 + PostGIS · Spring Data JPA + Hibernate Spatial, 통계는 네이티브 쿼리</td></tr>
+          <tr><td class="k">마이그레이션 / 캐시</td><td>Flyway · Redis</td></tr>
+          <tr><td class="k">로컬 환경</td><td>Docker Compose</td></tr>
+          <tr><td class="k">AWS (2단계~)</td><td>ECS Fargate · RDS · ElastiCache · S3 · Athena · EventBridge Scheduler · CloudFront · CloudWatch</td></tr>
+          <tr><td class="k">IaC / CI·CD</td><td>Terraform · GitHub Actions(OIDC) → ECR → ECS</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <span class="eyebrow">진행 단계</span>
+    <h2>지금 어디까지 왔는가</h2>
+
+    <div class="stage">
+      <div class="stage-no">1단계</div>
+      <h3>로컬 MVP <span class="pill progress">진행 중</span></h3>
+      <p class="stage-body">뼈대부터 조회 API, 배치, 외부 API 연동, Testcontainers 테스트까지 — 지금 당장 집중하는 구간.</p>
+      <div class="checklist">
+        <div class="row"><span class="mono">1-1</span> 멀티모듈 Gradle 뼈대 <span class="pill done">완료</span></div>
+        <div class="row"><span class="mono">1-2</span> Docker Compose + Flyway V1~V3 <span class="pill done">완료</span></div>
+        <div class="row"><span class="mono">1-3</span> Region 조회 API <span class="pill done">완료</span></div>
+        <div class="row"><span class="mono">1-4</span> 배치 틀 (Tasklet, 재실행 방지) <span class="pill progress">진행 중</span></div>
+        <div class="row"><span class="mono">1-5</span> 실거래가 API 클라이언트 <span class="pill planned">예정</span></div>
+        <div class="row"><span class="mono">1-6</span> 수집 Step (Chunk, upsert) <span class="pill planned">예정</span></div>
+        <div class="row"><span class="mono">1-7</span> 지오코딩 캐시 연동 <span class="pill planned">예정</span></div>
+        <div class="row"><span class="mono">1-8</span> 조회 API 4종 (위 "서비스 이용 방법") <span class="pill planned">예정</span></div>
+        <div class="row"><span class="mono">1-9</span> Testcontainers 통합 테스트 <span class="pill planned">예정</span></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no">2단계</div>
+      <h3>AWS 배포 <span class="pill planned">예정</span></h3>
+      <p class="stage-body">Terraform(VPC·RDS·ECS·S3·ECR), GitHub Actions OIDC 배포, EventBridge 스케줄 배치 — 위 아키텍처 그림이 실제로 세워지는 단계.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no">3단계</div>
+      <h3>확장 + 성능 <span class="pill planned">예정</span></h3>
+      <p class="stage-body">전국·수년치 데이터 적재, EXPLAIN 기반 인덱스 튜닝, 파티셔닝, Redis 캐시 적용, k6로 전후 수치 비교.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-no">4단계</div>
+      <h3>운영 + 고가용성 <span class="pill planned">예정</span></h3>
+      <p class="stage-body">CloudWatch 알람, Multi-AZ, AWS FIS 장애 훈련, 포스트모템 작성.</p>
+    </div>
+
+    <div class="snapshot">
+      <h3 style="margin-bottom:12px;">지금 실제로 돌아가는 것 (2026-11-09 기준)</h3>
+      <div class="row"><span class="k">로컬 인프라</span> Docker Compose — postgres(PostGIS 16-3.4), redis 둘 다 healthy</div>
+      <div class="row"><span class="k">스키마</span> Flyway V1~V4 적용 완료 (도메인 테이블 + 배치 메타 + 서울 25구 시드)</div>
+      <div class="row"><span class="k">동작하는 API</span> <code>GET /api/regions</code> → 25개 구, 강남구(11680)만 활성</div>
+      <div class="row"><span class="k">저장소</span> github.com/ujiko2003/estate-insight · main 브랜치</div>
+    </div>
+  </section>
+
+  <footer>
+    이 문서는 1단계 진행 중 스냅샷이다 — 하위 단계가 끝날 때마다 "진행 단계"와 "지금 실제로 돌아가는 것"을 갱신한다.
+  </footer>
+</div>
