@@ -218,3 +218,24 @@ GitHub 웹 UI에서 빈 저장소를 생성한 뒤 `git remote add` + `git push`
 그 끝에 문서 2개 섹션만 갱신하는 추가 비용은 크지 않다.
 **담당**: PM(내)이 BACKLOG.md의 각 하위 단계 완료 확인 시점에 맞춰 갱신한다. Hy가 직접 손대지
 않는다 (`overview.html`은 `docs/pm/`에 있는 PM 산출물).
+
+---
+
+## 12. 배치 종료 코드 — 별도 `ExitCodeGenerator` 없이 진행
+
+**문제**: `SpringApplication.exit()`가 Job 실행 결과를 프로세스 종료 코드로 바꿔주는지, 직접
+`ExitCodeGenerator` 빈을 등록해야 하는지 Boot 4.1.1 / Batch 6 조합에서 확인되지 않았다
+(`OPEN_QUESTIONS.md`에 있었음). 종료 코드는 ECS/EventBridge가 실패를 감지하는 근거다.
+
+**검토한 대안**:
+- (A) `System.exit(SpringApplication.exit(...))`만 적용
+- (B) `ExitCodeGenerator` 빈을 직접 등록
+
+**결정**: (A).
+
+**이유**: 실행 결과 Job 성공 시 0, Tasklet 예외로 인한 실패 시 5가 나왔다. 실패를 0이 아닌 값으로
+알린다는 요구를 (A)만으로 충족하므로 코드를 더 넣을 이유가 없다.
+
+**함께 확인한 것**: 같은 `runDate` 재실행은 `JobInstanceAlreadyCompleteException`으로 거부되고
+종료 코드 1로 끝난다. 처음 DoD에는 `(JOB_NAME, JOB_KEY)` UNIQUE 제약으로 막힌다고 적었으나,
+실제로는 그 전에 완료된 JobInstance 확인 단계에서 거부되어 DoD 문구를 고쳤다.

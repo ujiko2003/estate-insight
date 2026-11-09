@@ -36,10 +36,9 @@
 
 ## 배치
 
-- **종료 코드 생성 메커니즘 미검증.** `SpringApplication.exit()`가 Spring Batch의 Job 실행
-  결과를 프로세스 종료 코드로 자동 변환해주는지, 아니면 `ExitCodeGenerator` 빈을 직접 등록해야
-  하는지 Boot 4.1.1 / Batch 6 조합에서 아직 실험으로 확인하지 않았다. 1-4 작업 중 실패하는
-  Job을 실제로 돌려서 `echo $?`로 확인할 예정.
+- **`spring.batch.jdbc.initialize-schema` 명시 여부.** CLAUDE.md는 `never`로 두기로 했지만
+  `batch/application.yml`에는 설정이 없다. 기본값 `embedded`는 임베디드 DB에서만 초기화하므로
+  현재 PostgreSQL에서는 문제가 없다. 의도를 드러내도록 `never`를 명시할지 Hy가 결정한다.
 
 ## 운영 환경 / 로컬 개발
 

@@ -7,18 +7,6 @@
 
 ## 진행 중 — 1단계 로컬 MVP
 
-### 1-4. 배치 틀
-
-- [ ] **종료 코드 처리**: `BatchApplication`의 `main`을
-  `System.exit(SpringApplication.exit(SpringApplication.run(...)))` 형태로 변경.
-  DoD: Job을 의도적으로 실패시켰을 때 프로세스 종료 코드가 0이 아님을 `echo $?`로 확인,
-  성공 시 0인 것도 함께 확인.
-  진행 메모(2026-11-09): `System.exit` 적용 커밋(`9bd1771`), 의도적 실패 Job의 `FAILED` 기록은
-  DB에서 확인. `echo $?` 결과는 미확인.
-- [ ] **재실행 방지 확인**: 같은 `runDate`로 두 번째 실행.
-  DoD: 두 번째 실행이 `BATCH_JOB_INSTANCE`의 `(JOB_NAME, JOB_KEY)` UNIQUE 제약으로 막히는
-  것을 실제 로그/에러로 확인.
-
 ### 1-5. 실거래가 API 클라이언트
 
 - [ ] **RestClient 호출 기본 틀**: 국토교통부 실거래가 상세 API를 `LAWD_CD` + `DEAL_YMD`로
@@ -103,3 +91,14 @@
 ### 1-4 (부분). Job/Step/Tasklet 뼈대
 - `JobConfig`에 `logTestJob`/`logTestStep` 작성, `runDate` 파라미터 사용 (커밋 `9bd1771`).
 - DoD 확인: `BATCH_JOB_EXECUTION`에 `logTestJob`, `runDate=2026-11-06`, `COMPLETED` 기록 확인.
+
+### 1-4 (부분). 종료 코드 처리
+- `BatchApplication`의 `main`에 `System.exit(SpringApplication.exit(...))` 적용 (커밋 `9bd1771`).
+- DoD 확인: 성공 시 종료 코드 0(`runDate=2026-12-01`), 의도적 실패 시 5(`runDate=2026-12-02`).
+  실행 로그는 Hy 보고, Job 상태는 `BATCH_JOB_EXECUTION`에서 대조.
+
+### 1-4 (부분). 재실행 방지 확인
+- DoD(2026-11-09 문구 수정): 같은 `runDate`의 두 번째 실행이 완료된 JobInstance라서 거부되는 것을
+  실제 로그/에러로 확인.
+- DoD 확인: `runDate=2026-12-01` 재실행 시 `JobInstanceAlreadyCompleteException`, 종료 코드 1.
+  `BATCH_JOB_EXECUTION`에 해당 `runDate` 실행은 1건만 존재.
