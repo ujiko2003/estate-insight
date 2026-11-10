@@ -23,6 +23,8 @@ dependencies {
 
 	implementation(project(":core"))
 
+	implementation("org.springframework.boot:spring-boot-starter-restclient")
+	implementation("tools.jackson.dataformat:jackson-dataformat-xml")
 	implementation("org.springframework.boot:spring-boot-starter-batch-jdbc")
 	testImplementation("org.springframework.boot:spring-boot-starter-batch-jdbc-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
