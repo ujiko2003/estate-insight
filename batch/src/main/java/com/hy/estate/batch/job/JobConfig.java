@@ -1,5 +1,6 @@
 package com.hy.estate.batch.job;
 
+import com.hy.estate.batch.client.AptTradeApiClient;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -22,7 +23,9 @@ public class JobConfig {
 
     @Bean
     public Step logTestStep(JobRepository jobRepository,
-                            PlatformTransactionManager transactionManager) {
+                            PlatformTransactionManager transactionManager,
+                            AptTradeApiClient client
+                            ) {
         return new StepBuilder("logTestStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     String runDate = chunkContext.getStepContext()
