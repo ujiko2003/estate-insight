@@ -9,6 +9,10 @@
 
 ### 1-5. 실거래가 API 클라이언트
 
+> 2026-11-10 확인: `AptTradeApiClient`, `AptTradeXmlParser` 커밋됨(`d7ca28a`, 브랜치
+> `feat/1-5-api-client`). 커밋된 코드에 `fetchPage`·`parse` 호출부가 없고 금액 변환과 단위
+> 테스트도 없어 아래 DoD 2개는 아직 미충족.
+
 - [ ] **RestClient 호출 기본 틀**: 국토교통부 실거래가 상세 API를 `LAWD_CD` + `DEAL_YMD`로
   호출.
   DoD: 실제 서비스키로 한 건 호출해 원본 응답(XML 또는 JSON) 확인.
