@@ -21,3 +21,4 @@ out/
 
 # 로그
 *.log
+/docs/pm/proposal.html
