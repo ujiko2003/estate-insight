@@ -7,15 +7,8 @@
 
 ## 진행 중 — 1단계 로컬 MVP
 
-### 1-5. 실거래가 API 클라이언트
+### 1-5. 실거래가 API 클라이언트 — 진행 중 (브리프: `briefs/1-5.md`)
 
-> 2026-11-10 확인: `AptTradeApiClient`, `AptTradeXmlParser` 커밋됨(`d7ca28a`, 브랜치
-> `feat/1-5-api-client`). 커밋된 코드에 `fetchPage`·`parse` 호출부가 없고 금액 변환과 단위
-> 테스트도 없어 아래 DoD 2개는 아직 미충족.
-
-- [ ] **RestClient 호출 기본 틀**: 국토교통부 실거래가 상세 API를 `LAWD_CD` + `DEAL_YMD`로
-  호출.
-  DoD: 실제 서비스키로 한 건 호출해 원본 응답(XML 또는 JSON) 확인.
 - [ ] **응답 파싱 + 금액 처리**: 쉼표/공백이 섞인 금액 문자열을 정수로 변환, XML/JSON 파싱
   로직 작성, 단위 테스트 추가.
   DoD: 쉼표 포함 금액, 공백 포함 금액 등 엣지 케이스 테스트 통과.
@@ -106,3 +99,9 @@
   실제 로그/에러로 확인.
 - DoD 확인: `runDate=2026-12-01` 재실행 시 `JobInstanceAlreadyCompleteException`, 종료 코드 1.
   `BATCH_JOB_EXECUTION`에 해당 `runDate` 실행은 1건만 존재.
+
+### 1-5 (부분). RestClient 호출 기본 틀
+- `AptTradeApiClient`, `AptTradeXmlParser` 작성 (커밋 `d7ca28a`, 브랜치 `feat/1-5-api-client`).
+- DoD 확인: 실제 서비스키로 호출해 원본 응답 확인. `resultCode` 000, 강남구 2026년 9월 `totalCount`
+  125건은 Hy 기록(커밋 `aface3c`). 실행은 `BATCH_JOB_EXECUTION`
+  (`runDate=2026-12-05`, COMPLETED, Step 224ms)에서 대조. 커밋된 코드에는 호출부가 없다.
