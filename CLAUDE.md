@@ -145,8 +145,7 @@ estate-insight
 - **1-1 뼈대**: `api`/`batch`는 Spring Initializr로 각각 생성(의존성: `api`→`web`, `batch`→`batch-jdbc`) 후 멀티모듈 구조로 재배치, `core`는 직접 작성(`java-library`), 루트 `settings.gradle.kts`/`build.gradle.kts` 배선, `.gitignore`
   - 완료 기준: `./gradlew build` 성공
 - **1-2 로컬 인프라**: `compose.yaml`(postgis/postgis:16-3.4, redis:7-alpine, healthcheck), `application.yml`(환경변수 기본값 패턴), Flyway V1~V3
-  - 완료 기준: api 기동 시 Flyway V1~V3 적용, `/actuator/health` UP — **`./gradlew build -x test`** 로 확인 (아래 참고)
-  - ⚠️ `batch:test`(`BatchApplicationTests.contextLoads`)는 **1-4 전까지 의도적으로 깨진 상태**: `batch`가 `core`를 통해 JPA+postgres 드라이버를 전파받아 DataSource 자동설정이 걸리는데, `batch`엔 아직 `application.yml`이 없어서 연결 정보가 없음. `batch`의 DB 연결 설정은 1-4(배치 틀)에서 설계와 함께 작성하기로 함 (2026-11-06 결정).
+  - 완료 기준: api 기동 시 Flyway V1~V3 적용, `/actuator/health` UP — **`./gradlew build -x test`** 로 확인
 - **1-3 동작 확인 API**: Region 엔티티·리포지토리, `GET /api/regions` (엔티티 대신 record 응답)
   - 완료 기준: 25개 구 JSON 응답
 - **1-4 배치 틀**: Tasklet Job, `runDate` 파라미터, 종료 코드
@@ -167,12 +166,9 @@ estate-insight
 - [x] 1-1 뼈대
 - [x] 1-2 로컬 인프라
 - [x] 1-3 동작 확인 API
-- [ ] 1-4 배치 틀
-- [ ] 1-5 API 클라이언트
+- [x] 1-4 배치 틀
+- [x] 1-5 API 클라이언트
 - [ ] 1-6 수집 Step
 - [ ] 1-7 지오코딩
 - [ ] 1-8 조회 API
 - [ ] 1-9 테스트
-
-## 기록 원칙
-각 단계가 끝나면 `docs/decisions/`에 짧은 의사결정 기록(문제 / 선택지 / 결정 / 이유 / 결과 수치)을 내가 작성한다. 너는 초안 질문을 던져 내가 정리하도록 돕는다.
