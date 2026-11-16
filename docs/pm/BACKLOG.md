@@ -9,7 +9,8 @@
 
 ### 1-6. 수집 Step — 진행 중 (브리프: `briefs/1-6.md`)
 
-선행 2건과 Chunk Step 설계는 2026-11-11 완료(아래 "완료" 참조). 브랜치 `feat/1-6-collect-step`.
+선행 2건과 Chunk Step 설계는 2026-11-11, 대상 준비 Step은 2026-11-16 완료(아래 "완료" 참조).
+브랜치 `feat/1-6-collect-step`.
 
 - [ ] **원본 로컬 파일 저장**: 수집한 원본 응답을 로컬 파일로 저장 (2단계에서 S3로 교체 예정).
   DoD: 실행 후 파일이 실제로 생성되는지 확인.
@@ -121,3 +122,11 @@
   더미 `ListItemReader` 3건) (커밋 `b3f61eb`).
 - DoD 확인: `runDate=2026-11-11` 실행 COMPLETED, `collectStep` read 3 / write 3 / commit 3
   (`batch_step_execution`에서 대조). `initialize-schema: never` 적용 후 첫 실행도 정상.
+
+### 1-6 (부분). 대상 준비 Step (`prepareTargetsStep`)
+- `PrepareTargetsTasklet`: `runDate` 기준 당월 포함 3개월 × 활성 지역을 `ingest_status`에 `PENDING`으로
+  upsert(DECISIONS 23·25). `RegionRepository.findByIsActiveTrue()`, batch에 Lombok(26) (커밋 `469f77d`).
+- DoD 확인: `runDate=2026-11-12`, `2026-12-01` 실행 COMPLETED(job 13·15), `ingest_status` 4행
+  (202610·202611 중복 없음, 202609 유지)을 PM이 DB에서 대조. `:batch:test --rerun` 18건 통과, 전후
+  `batch_job_execution` 15건 동일(PM 재실행).
+- 남은 것: N=3 설정값 분리(23번), `collectStep` Reader 범위(OPEN_QUESTIONS).
