@@ -6,7 +6,6 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.support.ListItemReader;
-import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -30,17 +29,11 @@ public class JobConfig {
 
     @Bean
     public Step prepareTargetsStep(JobRepository jobRepository,
-                                   PlatformTransactionManager transactionManager
+                                   PlatformTransactionManager transactionManager,
+                                   PrepareTargetsTasklet prepareTargetsTasklet
     ) {
         return new StepBuilder("prepareTargetsStep", jobRepository)
-                .tasklet((contribution, chunkContext) -> {
-                    String runDate = chunkContext.getStepContext()
-                            .getJobParameters()
-                            .get("runDate")
-                            .toString();
-                    System.out.println("runDate = " + runDate);
-                    return RepeatStatus.FINISHED;
-                }, transactionManager)
+                .tasklet(prepareTargetsTasklet, transactionManager)
                 .build();
     }
 
