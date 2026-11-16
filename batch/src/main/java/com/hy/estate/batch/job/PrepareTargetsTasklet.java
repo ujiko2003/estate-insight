@@ -1,5 +1,6 @@
 package com.hy.estate.batch.job;
 
+import com.hy.estate.batch.config.CollectProperties;
 import com.hy.estate.region.Region;
 import com.hy.estate.region.RegionRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class PrepareTargetsTasklet implements Tasklet {
 
     private final RegionRepository regionRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final CollectProperties collectProperties;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -45,16 +47,16 @@ public class PrepareTargetsTasklet implements Tasklet {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
         List<String> targetMonths = new ArrayList<>();
 
-        for(int i = 2; i>=0; i--) {
+        for(int i = collectProperties.targetMonths()-1; i>=0; i--) {
             YearMonth month = runMonth.minusMonths(i);
             targetMonths.add(month.format(formatter));
         }
 
         //활성지역조회
-        List<Region> searchRegion = regionRepository.findByIsActiveTrue();
+        List<Region> activeRegions = regionRepository.findByIsActiveTrue();
 
         //지역 x 월마다 Update
-        for (Region region: searchRegion) {
+        for (Region region: activeRegions) {
             for (String month: targetMonths) {
                 jdbcTemplate.update(UPSERT_SQL,region.getSggCode(), month);
             }

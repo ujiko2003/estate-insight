@@ -15,3 +15,6 @@ public-data:
   apt-trade:
     base-url: https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev
     service-key: ${PUBLIC_DATA_SERVICE_KEY:}
+
+collect:
+  target-months: 3
