@@ -9,16 +9,8 @@
 
 ### 1-6. 수집 Step — 진행 중 (브리프: `briefs/1-6.md`)
 
-선행 작업 2건은 2026-11-11 추가(Hy가 PM 판단에 위임). 1-5에서 드러난 문제라 Chunk Step보다 먼저 한다.
+선행 2건과 Chunk Step 설계는 2026-11-11 완료(아래 "완료" 참조). 브랜치 `feat/1-6-collect-step`.
 
-- [ ] **[선행] `umd_code` 컬럼 길이 수정**: `apt_complex.umd_code`가 `CHAR(3)`인데 실제 `umdCd`는
-  `10600`처럼 5자리다. V5 마이그레이션으로 `VARCHAR(5)`로 바꾼다(`sgg_code`의 7번 결정과 같은 이유).
-  DoD: `api` 기동으로 V5 적용 후 `information_schema.columns`에서 `character varying(5)` 확인.
-- [ ] **[선행] 테스트에서 Job 자동 실행 끄기**: `BatchApplicationTests`가 컨텍스트를 띄울 때 실제 Job이
-  실행되지 않게 한다(예: 테스트 설정에 `spring.batch.job.enabled=false`).
-  DoD: `./gradlew :batch:test` 전체 실행 전후 `batch_job_execution` 행 수가 같다.
-- [ ] **Chunk Step 설계**: 지역×계약월 단위로 나눠 처리하는 Chunk Step.
-  DoD: 더미 데이터로 Step이 끝까지 실행되는 것 확인.
 - [ ] **원본 로컬 파일 저장**: 수집한 원본 응답을 로컬 파일로 저장 (2단계에서 S3로 교체 예정).
   DoD: 실행 후 파일이 실제로 생성되는지 확인.
 - [ ] **upsert 로직**: `trade_key` 기준으로 저장, 이미 있는 거래는 갱신만.
@@ -114,3 +106,18 @@
 - DoD 확인: `./gradlew :batch:test --tests 'com.hy.estate.batch.*'` 17건 통과(금액 12, 파서 5)를
   PM이 재실행으로 확인. 쉼표·공백·null·빈 값·숫자 아님·0·음수, `item` 1건, 0건, `resultCode` 오류,
   접근거부 포함. 실제 응답 125건 금액 전부 변환. 테스트 리소스에 서비스키 없음.
+
+### 1-6 (부분). [선행] `umd_code` 컬럼 길이 수정
+- V5 마이그레이션으로 `apt_complex.umd_code`를 `CHAR(3)` → `VARCHAR(5)` (커밋 `6174a6a`).
+- DoD 확인: `flyway_schema_history` version 5 success, `information_schema.columns`에서
+  `character varying(5)` (PM이 DB에서 확인).
+
+### 1-6 (부분). [선행] 테스트에서 Job 자동 실행 끄기
+- `BatchApplicationTests`에 `spring.batch.job.enabled=false` (커밋 `d5728bc`).
+- DoD 확인: PM이 `./gradlew :batch:test` 전체 18건을 재실행, 전후 `batch_job_execution` 12건 동일.
+
+### 1-6 (부분). Chunk Step 설계
+- `logTestJob` 삭제, `aptTradeDataJob` = `prepareTargetsStep`(Tasklet) → `collectStep`(chunk size 1,
+  더미 `ListItemReader` 3건) (커밋 `b3f61eb`).
+- DoD 확인: `runDate=2026-11-11` 실행 COMPLETED, `collectStep` read 3 / write 3 / commit 3
+  (`batch_step_execution`에서 대조). `initialize-schema: never` 적용 후 첫 실행도 정상.
