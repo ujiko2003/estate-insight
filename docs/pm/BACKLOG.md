@@ -11,6 +11,7 @@
 
 선행 2건과 Chunk Step 설계는 2026-11-11, 대상 준비 Step은 2026-11-16 완료(아래 "완료" 참조).
 브랜치 `feat/1-6-collect-step`.
+현재: 작업 순서 3단계 변환 규칙 + 단위 테스트 — 진행 중 (브리프: `briefs/1-6-3.md`, 2026-11-17 킥오프).
 
 - [ ] **원본 로컬 파일 저장**: 수집한 원본 응답을 로컬 파일로 저장 (2단계에서 S3로 교체 예정).
   DoD: 실행 후 파일이 실제로 생성되는지 확인.
@@ -129,4 +130,6 @@
 - DoD 확인: `runDate=2026-11-12`, `2026-12-01` 실행 COMPLETED(job 13·15), `ingest_status` 4행
   (202610·202611 중복 없음, 202609 유지)을 PM이 DB에서 대조. `:batch:test --rerun` 18건 통과, 전후
   `batch_job_execution` 15건 동일(PM 재실행).
-- 남은 것: N=3 설정값 분리(23번), `collectStep` Reader 범위(OPEN_QUESTIONS).
+- N 설정값 분리(커밋 `40fd2ac`, DECISIONS 27): `collect.target-months`. 2027-02-10(연도 경계)·명령줄
+  `target-months=2` 실행을 PM이 DB에서 대조, 테스트 18건 재실행 통과.
+- 남은 것: `collectStep` Reader 범위(OPEN_QUESTIONS), `PENDING` 복귀 시 지난 수집값 정리(상태 갱신 작업).
