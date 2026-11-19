@@ -23,3 +23,6 @@ out/
 *.log
 /docs/pm/proposal.html
 /docs/pm/overview.html
+
+# 수집 원본 (공공데이터 응답, 커밋 금지)
+**/data/raw/

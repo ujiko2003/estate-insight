@@ -101,12 +101,18 @@ class AptTradeFieldParserTest {
     // ---------- 전용면적 ----------
 
     // equals로 비교해야 scale(소수 자릿수)까지 확인된다. isEqualByComparingTo는 60과 60.00을 같다고 본다.
+    // 실제 응답 125건 중 15건이 소수 셋째·넷째 자리라 HALF_UP으로 둘째 자리에 맞춘다.
     @ParameterizedTest
     @CsvSource({
             "'60', 60.00",
             "'84.93', 84.93",
             "'39.6', 39.60",
-            "' 59.98 ', 59.98"
+            "' 59.98 ', 59.98",
+            "'31.402', 31.40",
+            "'59.9772', 59.98",
+            "'84.9984', 85.00",
+            "'84.935', 84.94",    // 경계값: 5는 올림
+            "'84.934', 84.93"
     })
     void 정상_면적은_소수_둘째자리로_맞춘다(String raw, BigDecimal expected) {
         BigDecimal actual = AptTradeFieldParser.parseArea(raw);
@@ -117,7 +123,7 @@ class AptTradeFieldParserTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = { " ", "abc", "84.935" })
+    @ValueSource(strings = { " ", "abc", "84,93" })
     void 비었거나_잘못된_면적은_예외(String raw) {
         assertThatThrownBy(() -> AptTradeFieldParser.parseArea(raw))
                 .isInstanceOf(IllegalArgumentException.class);

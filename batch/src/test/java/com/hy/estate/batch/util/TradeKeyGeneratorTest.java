@@ -70,6 +70,15 @@ class TradeKeyGeneratorTest {
                 .isEqualTo(keyWith(FLOOR, new BigDecimal("60.0"), AMOUNT, null));
     }
 
+    // 생성기도 parseArea와 같은 규칙(HALF_UP, 둘째 자리)으로 맞춘다.
+    @Test
+    void 면적은_소수_셋째_자리를_반올림한_값과_같은_키() {
+        assertThat(keyWith(FLOOR, new BigDecimal("84.935"), AMOUNT, null))
+                .isEqualTo(keyWith(FLOOR, new BigDecimal("84.94"), AMOUNT, null));
+        assertThat(keyWith(FLOOR, new BigDecimal("59.9772"), AMOUNT, null))
+                .isEqualTo(keyWith(FLOOR, new BigDecimal("59.98"), AMOUNT, null));
+    }
+
     @Test
     void 층이_null이면_빈_값으로_처리되어_항상_같은_키() {
         assertThat(keyWith(null, AREA, AMOUNT, null))

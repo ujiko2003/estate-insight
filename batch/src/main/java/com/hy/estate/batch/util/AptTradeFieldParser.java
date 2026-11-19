@@ -1,6 +1,7 @@
 package com.hy.estate.batch.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +41,9 @@ public class AptTradeFieldParser {
         if (blankToNull(raw) == null) throw new IllegalArgumentException("전용면적이 올바르지 않습니다 : '" + raw + "'");
 
         try {
-            return new BigDecimal(raw.strip()).setScale(2);
+            return new BigDecimal(raw.strip()).setScale(2, RoundingMode.HALF_UP);
 
-        } catch (NumberFormatException | ArithmeticException e) {
+        } catch (NumberFormatException e) {
             throw new IllegalArgumentException("전용면적이 올바르지 않습니다 : '" + raw + "'",e);
         }
     }

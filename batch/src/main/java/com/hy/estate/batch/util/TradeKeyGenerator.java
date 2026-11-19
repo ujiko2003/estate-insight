@@ -1,6 +1,7 @@
 package com.hy.estate.batch.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +24,7 @@ public class TradeKeyGenerator {
                     "aptSeq=" + aptSeq + ", dealDate=" + dealDate + ", area=" + area);
         }
 
-        String areaText = area.setScale(2).toPlainString();
+        String areaText = area.setScale(2, RoundingMode.HALF_UP).toPlainString();
         String floorText = Objects.toString(floor,"");
         String dongText = Objects.toString(AptTradeFieldParser.blankToNull(aptDong), "");
 
