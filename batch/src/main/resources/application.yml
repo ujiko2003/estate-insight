@@ -18,3 +18,4 @@ public-data:
 
 collect:
   target-months: 3
+  raw-dir: ${COLLECT_RAW_DIR:data/raw}

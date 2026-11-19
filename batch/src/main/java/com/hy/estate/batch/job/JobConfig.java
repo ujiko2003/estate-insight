@@ -1,15 +1,20 @@
 package com.hy.estate.batch.job;
 
+import com.hy.estate.batch.util.CollectTarget;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.support.ListItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -39,15 +44,32 @@ public class JobConfig {
 
     @Bean
     public Step collectStep(JobRepository jobRepository,
-                            PlatformTransactionManager transactionManager
+                            PlatformTransactionManager transactionManager,
+                            ItemReader<CollectTarget> collectTargetReader,
+                            FetchRawProcessor fetchRawProcessor,
+                            RawKeyWriter rawKeyWriter
     ) {
-
         return new StepBuilder("collectStep", jobRepository)
-                .<String, String>chunk(1)
+                .<CollectTarget, RawSaveResult>chunk(1)
                 .transactionManager(transactionManager)
-                .reader(new ListItemReader<>(List.of("11680-202607", "11680-202608", "11680-202609")))
-                .processor(item -> item)
-                .writer(chunk -> System.out.println("저장할 항목: " + chunk.getItems()))
+                .reader(collectTargetReader)
+                .processor(fetchRawProcessor)
+                .writer(rawKeyWriter)
                 .build();
+    }
+
+    @Bean
+    @StepScope
+    public ItemReader<CollectTarget> collectTargetReader(
+            @Value("#{jobExecutionContext['collectTargets']}")
+            List<String> targets) {
+
+        List<CollectTarget> items = new ArrayList<>();
+        for (String target : targets) {
+            String[] parts = target.split("\\|");
+            items.add(new CollectTarget(parts[0], parts[1] ));
+        }
+
+        return new ListItemReader<>(items);
     }
 }

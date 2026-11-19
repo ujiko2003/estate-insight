@@ -55,12 +55,20 @@ public class PrepareTargetsTasklet implements Tasklet {
         //활성지역조회
         List<Region> activeRegions = regionRepository.findByIsActiveTrue();
 
+        ArrayList<String> collectTargets = new ArrayList<>();
         //지역 x 월마다 Update
         for (Region region: activeRegions) {
             for (String month: targetMonths) {
                 jdbcTemplate.update(UPSERT_SQL,region.getSggCode(), month);
+                collectTargets.add(region.getSggCode() + "|" + month);
             }
         }
+
+        chunkContext.getStepContext()
+                .getStepExecution()
+                .getJobExecution()
+                .getExecutionContext()
+                .put("collectTargets", collectTargets);
 
         return RepeatStatus.FINISHED;
     }
